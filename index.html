@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>S-Record</title>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"> 
+  </head>
+  
+  <body style="background:url('../images/bg1.jpg')fixed;background-size: cover;background-position: center;background-repeat: no-repeat;">
+	<div class="container">
+		<div class="login-form col-md-6 offset-md-3">
+			<div class="jumbotron" style="margin-top:50px; background-color:#ffffff; border:2px outset gray; border-radius:20px;">
+				<form method="post" enctype="multipart/form-data">
+					<center><h4 style="color:#ff9f80;"><strong>Cyber Labs</strong></h4></center>
+					<center><h4 style="color:#8080ff;">Welcome to the World of IoT</h4></center>
+					<center><h5 style="color:#ff9f80;"><strong>S-Record</strong></h5></center><br><br><br>
+                    <div class="form-group">
+					    <div class="d-flex justify-content-around">
+                            <div><input type="checkbox" name="srec" value="S0" ><b>S0</b></div>
+                            <div><input type="checkbox" name="srec" value="S1" ><b>S1</b></div>
+                            <div><input type="checkbox" name="srec" value="S2" ><b>S2</b></div>
+                            <div><input type="checkbox" name="srec" value="S3" ><b>S3</b></div>
+                            <div><input type="checkbox" name="srec" value="S5" ><b>S5</b></div>
+                            <div><input type="checkbox" name="srec" value="S6" ><b>S6</b></div>
+                            <div><input type="checkbox" name="srec" value="S7" ><b>S7</b></div>
+                            <div><input type="checkbox" name="srec" value="S8" ><b>S8</b></div>
+                            <div><input type="checkbox" name="srec" value="S9" ><b>S9</b></div>
+                        </div>
+                    </div><!--/form-group-->
+                    <div class="form-group">
+					    <div class="d-flex justify-content-around">
+                            <div><input type="checkbox" name="dataOnlyCb" id="dataOnlyCb" value="Data Only" class="form-check-input"><b>Data Only</b></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inputfile"><b>Upload File</b></label>
+                        <span class="btn btn-primary form-control">
+                            <input type="file" name="filename" id="inputfile"  required="required"/>
+                        </span>
+					</div><!--/form-group-->
+                  
+					<div class="form-group">
+						<center><input type="button" name="submit" id="create" value="Create File" onclick="displayLink()" class="btn btn-success"></center>
+                    </div><!--/form-group-->
+                    
+                    <a download="outputfile.srec" id="downloadlink" style="display: none" class="btn btn-danger">Download Your File Here</a>
+                    
+                </form>
+			</div>
+        </div>
+        <div id="div" class="d-flex justify-content-around align-items-center" style="display: none; margin-top:50px; background-color:#ffffff; border:2px outset gray; border-radius:8px; overflow: scroll; padding: 5%;">
+            <p id="fileContentDiv"> </p>
+        </div>
+	</div>
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<!-- Popper JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <script>
+        var srecArray=[],
+        output =[],
+        create =document.getElementById('create'),
+        link   =document.getElementById('downloadlink'),
+        outDiv =document.getElementById('fileContentDiv'),
+        textFile = null;
+
+        create.addEventListener('click', function () { 
+              
+            var input = document.getElementById("inputfile"),
+            srecCheckbox = document.querySelectorAll('input[name="srec"]:checked'),
+            dataOnly = document.getElementById("dataOnlyCb").checked;
+            srecCheckbox.forEach(function(srecCB, i) {
+                srecArray[i]=srecCB.value;
+            });
+
+            var reader = new FileReader();
+            reader.onload = function(){
+                var text = reader.result;
+                text = text.split("\n");
+                text.forEach(function(data, i) {
+                    srecArray.forEach(function(stype){
+                        if(data.startsWith(stype)){
+                            if(dataOnly){
+                                switch(stype){
+                                    case 'S0':
+                                        output[i]=data.substring(8, data.length-3);
+                                        break;
+                                    case 'S1':
+                                        output[i]=data.substring(8, data.length-3);
+                                        break;
+                                    case 'S2':
+                                        output[i]=data.substring(10, data.length-3);
+                                        break;
+                                    case 'S3':
+                                        output[i]=data.substring(12, data.length-3);
+                                        break;
+                                    case 'S5':
+                                        output[i]=data;
+                                        break;
+                                    case 'S6':
+                                        output[i]=data;
+                                        break;
+                                    case 'S7':
+                                        output[i]=data;
+                                        break;
+                                    case 'S8':
+                                        output[i]=data;
+                                        break;
+                                    case 'S9':
+                                        output[i]=data;
+                                        break;
+                                }
+                            }else{
+                                output[i]=data;
+                            }
+                        }
+                    });
+                });
+                outDiv.innerText = output.toString().replace(/,/g,"");
+                if(output.toString().replace(/,/g,"")){
+                    link.href = makeTextFile(output.toString().replace(/,/g,""));
+                    link.style.display = 'block';
+                }else{
+                    link.href = "javascript:void(0)";
+                    link.style.display = 'none';
+                }
+                srecArray=[];
+                output=[];
+            };
+            reader.readAsText(input.files[0]);
+        }, false);
+
+        $('input[name=srec]').change(function() { // while you're at it listen for change rather than click, this is in case something else modifies the checkbox
+            link.style.display = 'none';
+            link.href = "javascript:void(0)";
+            outDiv.innerText = '';
+            srecArray=[];
+            output=[];
+        });
+
+        $('#inputfile').change(function() { // while you're at it listen for change rather than click, this is in case something else modifies the checkbox
+            link.style.display = 'none';
+            link.href = "javascript:void(0)";
+            outDiv.innerText = '';
+            srecArray=[];
+            output=[];
+        });
+
+        var makeTextFile = function (text) {  
+            var data = new Blob([text], {type: 'text/plain'});  
+            // If we are replacing a previously generated file we need to  
+            // manually revoke the object URL to avoid memory leaks.  
+            if (textFile !== null) {  
+                window.URL.revokeObjectURL(textFile);  
+            }
+            textFile = window.URL.createObjectURL(data);
+            return textFile;  
+        }
+    </script>
+  </body>
+</html>
